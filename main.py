@@ -6,8 +6,6 @@ import base64
 from pyDes import des, ECB, PAD_PKCS5
 import json
 import os
-stdnum = os.environ["stdnum"]
-passwd = os.environ["passwd"]
 # 密码加密
 def des_encrypt(s, key):
     """
@@ -22,7 +20,7 @@ def des_encrypt(s, key):
     return base64.b64encode(en).decode('utf-8')
 
 
-
+# 可优化
 def getCsrfToken(session):
     # 获取跨域请求
     url = "https://i.sdwu.edu.cn/infoplus/form/XSMRJKZKTBB/start"
@@ -75,9 +73,10 @@ if __name__ == '__main__':
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"}
     session = requests.session()
-    session.headers = headers
-    
-    if (loginin(stdnum, passwd, session)):
+    session.heados.environ["email"]ers = headers
+    stdnum = os.environ["stdnum"]
+    passwd = os.environ["passwd"]
+    if (loginin(stdnum,passwd, session)):
         print("登录成功")
     else:
         print("登录失败，请查看验证码")
@@ -142,7 +141,7 @@ if __name__ == '__main__':
         'stepId': form_id,
         'timestamp': int(time.time()),  # ?
         'boundFields': "fieldXH,fieldFXQK,fieldXM,fieldYC1,fieldYC2,fieldK10,fieldXXDD,fieldK11,fieldK12,fieldK13,fieldWFXYY,fieldZY,fieldK14,fieldK16,fieldK17,fieldTBSJ,fieldK18,fieldK19,fieldLH,fieldHSJG,fieldK9,fieldBJ,fieldK3,fieldK4,fieldFJH,fieldK1,fieldK2,fieldSHENG,fieldK7,fieldTJSJYC,fieldK8,fieldK5,fieldK20,fieldK6,fieldK21,fieldK22,fieldXIAN,fieldDQJZWZ,fieldSHI,fieldXYMC,fieldSJHM,fieldHSSJ",
-
+        #可以优化
         'csrfToken': csrfToken,  # needed
         'lang': 'zh'
 
@@ -160,9 +159,3 @@ if __name__ == '__main__':
         print(resb['error'])
     else:
         print("填报成功！")
-
-    # {"errno": 0, "ecode": "SUCCEED", "entities": [
-    #    {"stepId": 2, "name": "完成", "code": "autoStep1", "status": 0, "type": "Auto", "flowStepId": 0,
-    #     "executorSelection": 0, "timestamp": 0, "posts": [], "users": [], "parallel": false,
-    #     "hasInstantNotification": false, "hasCarbonCopy": false, "entryId": 4374621, "entryStatus": 0,
-    #     "entryRelease": false}]}
