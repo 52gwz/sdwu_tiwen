@@ -5,6 +5,7 @@ import requests
 import base64
 from pyDes import des, ECB, PAD_PKCS5
 import json
+import os
 
 # 密码加密
 def des_encrypt(s, key):
