@@ -6,7 +6,8 @@ import base64
 from pyDes import des, ECB, PAD_PKCS5
 import json
 import os
-
+stdnum = os.environ["stdnum"]
+passwd = os.environ["passwd"]
 # 密码加密
 def des_encrypt(s, key):
     """
@@ -75,8 +76,7 @@ if __name__ == '__main__':
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"}
     session = requests.session()
     session.headers = headers
-    stdnum = os.environ["stdnum"]
-    passwd = os.environ["passwd"]
+    
     if (loginin(stdnum, passwd, session)):
         print("登录成功")
     else:
