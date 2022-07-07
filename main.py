@@ -1,3 +1,4 @@
+from pickle import TRUE
 import re
 import time
 import random
@@ -5,7 +6,7 @@ import requests
 import base64
 from pyDes import des, ECB, PAD_PKCS5
 import json
-import os
+
 # 密码加密
 def des_encrypt(s, key):
     """
@@ -20,7 +21,6 @@ def des_encrypt(s, key):
     return base64.b64encode(en).decode('utf-8')
 
 
-# 可优化
 def getCsrfToken(session):
     # 获取跨域请求
     url = "https://i.sdwu.edu.cn/infoplus/form/XSMRJKZKTBB/start"
@@ -68,28 +68,26 @@ def getFormUrl(session, csrftoken):
     res = session.post(url, data=post_data)
     return res.json()['entities'][0]
 
-
-if __name__ == '__main__':
+def sign(stdnum,password):
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"}
     session = requests.session()
-    session.heados.environ["email"]ers = headers
-    stdnum = os.environ["stdnum"]
-    passwd = os.environ["passwd"]
-    if (loginin(stdnum,passwd, session)):
-        print("登录成功")
+    session.headers = headers
+    if (loginin(stdnum, password, session)):
+        print(stdnum+"登录成功")
+        
     else:
         print("登录失败，请查看验证码")
-
+        return False
     csrfToken = getCsrfToken(session)
-    form_url = getFormUrl(session, csrfToken)
+    form_url =getFormUrl(session,csrfToken)
     form_id = re.findall(r"[0-9]+",form_url)[0]
 
     # 获取表单信息
     form_data = session.post("https://i.sdwu.edu.cn/infoplus/interface/render", data={
         "stepId": form_id,
         "instanceId": "",
-        "admin": "false",
+        "admin": "true",
         "rand": random.random()*999,
         "width": "1283",
         "lang": "zh",
@@ -102,6 +100,7 @@ if __name__ == '__main__':
     form_data = form_data.json()
     if(form_data['errno']!=0):
         print(form_data['error'])
+        return False
     form_data = form_data["entities"][0]["data"]
 
     form_data["fieldK2"] = str(random.randint(362,368)/10)
@@ -128,11 +127,7 @@ if __name__ == '__main__':
             "_parent": form_data["fieldSHI"]
         })
 
-    #
-    print(form_url)
-    # form_data = str(form_data).replace("'", '"')
-    # form_data = form_data.replace('{"_p','{\\"_p')
-    print("dumpted:\n" + json.dumps(form_data))
+    # print("dumpted:\n" + json.dumps(form_data))
     post_data = {
         'actionId': 1,
         'formData': json.dumps(form_data),
@@ -151,11 +146,23 @@ if __name__ == '__main__':
     resb = session.post(action_url,post_data)
 
     do_action_url = "https://i.sdwu.edu.cn/infoplus/interface/doAction"
-    post_data["rand"] =  random.random() * 999
+    # post_data["rand"] =  random.random() * 999
     post_data["timestamp"] = int(time.time())
     post_data["nextUsers"] = "{}"
     resb = session.post(do_action_url, post_data)
     if(resb.json()["errno"] != 0):
-        print(resb['error'])
+        # print(resb['error'])
+        if(resb['error'] == "今日已填报，请勿重复填报"):
+            return True
+        return False
     else:
         print("填报成功！")
+    return True
+if __name__ == '__main__':
+    
+    print(sign("账号","密码"))
+    # {"errno": 0, "ecode": "SUCCEED", "entities": [
+    #    {"stepId": 2, "name": "完成", "code": "autoStep1", "status": 0, "type": "Auto", "flowStepId": 0,
+    #     "executorSelection": 0, "timestamp": 0, "posts": [], "users": [], "parallel": false,
+    #     "hasInstantNotification": false, "hasCarbonCopy": false, "entryId": 4374621, "entryStatus": 0,
+    #     "entryRelease": false}]}
